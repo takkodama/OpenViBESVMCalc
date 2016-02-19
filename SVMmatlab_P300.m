@@ -5,19 +5,20 @@ Label = vertcat(zeros(length(TrainClassB(:, 1)), 1), ones(length(TrainClassA(:, 
 
 % ===  % ===  1. Train classifier % ===  % === 
 
+% --- Linear kernel
 %SVMModel_linear = fitcsvm(Train, Label, 'KernelFunction','linear','Standardize',true,'ClassNames',[0 1]);
 %ScoreSVMModel_linear = fitSVMPosterior(SVMModel_linear, Train, Label);
 
+%[~, Prob_linear_Before] = predict(ScoreSVMModel_linear, TrialDATA);
+%Prob_linear_Before
+
+% --- RBF kernel
 %BoxConstraint == gamma
 %KernelScale == cost
 SVMModel_rbf = fitcsvm(Train, Label, 'KernelFunction','rbf','Standardize',true,'ClassNames',[0 1],...
     'BoxConstraint', 0.06309573, 'KernelScale', 2.511886);
 ScoreSVMModel_rbf = fitSVMPosterior(SVMModel_rbf, Train, Label);
-
-%[~, Prob_linear_Before] = predict(ScoreSVMModel_linear, TrialDATA);
 [~, Prob_rbf_Before] = predict(ScoreSVMModel_rbf, TrialDATA);
-
-%Prob_linear_Before
 Prob_rbf_Before
 
 % === 
@@ -30,7 +31,6 @@ for j = 1:(size(Prob_linear_Before, 2))
 end
 %}
 
-
 %p_4duration_linear_before
 %p_4duration_rbf_before
 
@@ -40,21 +40,19 @@ end
 % Duration 3 | Correct          | Wrong         |
 % Duration 4 | Correct          | Wrong         |
 
+
 % ===  % ===  2. Modify parameter % ===  % === 
 
 cdata = [TrainClassB;TrainClassA];
 d = 0.02;
 meshArray = [];
 
-% === % === % === 
-
 c = cvpartition(16,'KFold',10);
 
-%{
-minfn_linear = @(z)kfoldLoss(fitcsvm(Train,Label,'CVPartition',c,...
-    'KernelFunction','linear','BoxConstraint',exp(z(2)),...
-    'KernelScale',exp(z(1))));
-%}
+% minfn_linear = @(z)kfoldLoss(fitcsvm(Train,Label,'CVPartition',c,...
+%     'KernelFunction','linear','BoxConstraint',exp(z(2)),...
+%     'KernelScale',exp(z(1))));
+
 minfn_rbf = @(z)kfoldLoss(fitcsvm(Train,Label,'CVPartition',c,...
     'KernelFunction','rbf','BoxConstraint',exp(z(2)),...
     'KernelScale',exp(z(1))));
@@ -75,21 +73,24 @@ for j = 1:m;
     z_rbf(j,:) = exp(searchmin_rbf);
 end
 
-% most optimistic result ===
+% === most optimistic result
 %z_linear = z_linear(fval_linear == min(fval_linear),:)
 z_rbf = z_rbf(fval_rbf == min(fval_rbf),:)
+
 % ===  % ===  3. Retrain classifier % ===  % === 
 
+% --- Linear kernel
 %SVMModel_linear_2 = fitcsvm(Train, Label, 'KernelFunction','linear','Standardize',true,...
 %    'ClassNames',[0 1],'KernelScale', z_linear(1),'BoxConstraint', z_linear(2));
+%ScoreSVMModel_linear_2 = fitSVMPosterior(SVMModel_linear_2, Train, Label);
+%[~, Prob_linear_After] = predict(ScoreSVMModel_linear_2, TrialDATA);
+%Prob_linear_After
+
+% --- RBF kernel
 SVMModel_rbf_2 = fitcsvm(Train, Label, 'KernelFunction','rbf','Standardize',true,...
     'ClassNames',[0 1],'KernelScale', z_rbf(1),'BoxConstraint', z_rbf(2));
-%ScoreSVMModel_linear_2 = fitSVMPosterior(SVMModel_linear_2, Train, Label);
 ScoreSVMModel_rbf_2 = fitSVMPosterior(SVMModel_rbf_2, Train, Label);
-
-%[~, Prob_linear_After] = predict(ScoreSVMModel_linear_2, TrialDATA);
 [~, Prob_rbf_After] = predict(ScoreSVMModel_rbf_2, TrialDATA);
-
 Prob_rbf_After
 
 %{
