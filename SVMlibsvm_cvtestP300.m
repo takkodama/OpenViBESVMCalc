@@ -48,19 +48,21 @@ end
 disp(['CV scale1: best log10g:',num2str(bestLog10g),' best log10c:',num2str(bestLog10c),' accuracy:',num2str(bestcv),'%']);
 
 % Plot the results
+%{
 figure;
 imagesc(cvMatrix); colormap('jet'); colorbar;
 set(gca,'XTick', [1:numLog10g])
 set(gca,'XTickLabel',log10g_list)
-xlabel('Log_(10)\gamma');
+xlabel('Log10 gamma');
 set(gca,'YDir', 'normal')
 set(gca,'YTick', [1:numLog10c])
 set(gca,'YTickLabel',log10c_list)
-ylabel('Log_(10)\cost');
+ylabel('Log10 cost');
 
 filename_scale1 = strcat(directory_Training, '/_', fileID, '_ResultGridSearch(1).png');
-set(gcf,'Position', [0 0 1920 1080], 'PaperPositionMode', 'auto')
+set(gcf,'Position', [0 0 640 480], 'PaperPositionMode', 'auto')
 print(filename_scale1,'-dpng','-r0')
+%}
 
 % ###################################################################
 % cross validation scale 2

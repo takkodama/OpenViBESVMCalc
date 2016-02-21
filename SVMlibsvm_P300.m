@@ -1,4 +1,4 @@
-function [p_4duration] = SVMlibsvm_P300(Train_Data, Train_Label, Trial_Data, Trial_Label, gamma, cost)
+function [prob] = SVMlibsvm_P300(Train_Data, Train_Label, Trial_Data, Trial_Label, gamma, cost)
 
 % ===  % ===  0. Set the parameters % ===  % === 
 svm_type = 0;    % C-SVC
@@ -28,11 +28,13 @@ param_predict = [' -b ', num2str(probability)];
 
 [predicted_label, accuracy, prob] = svmpredict(Trial_Label, Trial_Data, model_svm, param_predict);
 
+%{
 for j = 1:(size(prob, 2))
     for i = 1:4
         p_4duration(i, j) = mean(prob(1+5*(i-1):5*(i), j));
     end
 end
+%}
 
 end
 
