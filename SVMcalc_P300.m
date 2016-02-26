@@ -1,4 +1,5 @@
-function [ProbP300_2cls, ProbP300_4cls_AVE] = SVMcalcmain_P300(directory_Training, directory_Trial)
+function [ProbP300_2cls, ProbP300_4cls_AVE] = SVMcalc_P300(directory_Training, directory_Trial, ...
+    EpochCount_Train, EpochCount_Trial, EpochLength)
 
 % === % === T r a i n i n g % === % ===
 % --- Feature generation by signal file
@@ -18,7 +19,6 @@ function [ProbP300_2cls, ProbP300_4cls_AVE] = SVMcalcmain_P300(directory_Trainin
 [Signal_NonTarget2_R] = fileProcessor_dir(directory_Training, dir(['./', directory_Training, horzcat('/[5] P300-SBE_NonTarget2_R*.csv')]));
 [Signal_NonTarget3_R] = fileProcessor_dir(directory_Training, dir(['./', directory_Training, horzcat('/[5] P300-SBE_NonTarget3_R*.csv')]));
 [Signal_NonTarget4_R] = fileProcessor_dir(directory_Training, dir(['./', directory_Training, horzcat('/[5] P300-SBE_NonTarget4_R*.csv')]));
-
 
 % --- BandPass filtering
 [Signal_Target1_Filtered_F, Signal_NonTarget1_Filtered_F] = BPFilter(Signal_Target1_F, Signal_NonTarget1_F, [1:8]);
@@ -44,69 +44,67 @@ function [ProbP300_2cls, ProbP300_4cls_AVE] = SVMcalcmain_P300(directory_Trainin
 
 % --- Downsampling
 [Signal_Target1_Filtered_DS64Hz_F, Signal_NonTarget1_Filtered_DS64Hz_F, Duration_points_64Hz] = ...
-    DownSampling(Signal_Target1_Filtered_F, Signal_NonTarget1_Filtered_F, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Target1_Filtered_F, Signal_NonTarget1_Filtered_F, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Target2_Filtered_DS64Hz_F, Signal_NonTarget2_Filtered_DS64Hz_F, Duration_points_64Hz] = ...
-    DownSampling(Signal_Target2_Filtered_F, Signal_NonTarget2_Filtered_F, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Target2_Filtered_F, Signal_NonTarget2_Filtered_F, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Target3_Filtered_DS64Hz_F, Signal_NonTarget3_Filtered_DS64Hz_F, Duration_points_64Hz] = ...
-    DownSampling(Signal_Target3_Filtered_F, Signal_NonTarget3_Filtered_F, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Target3_Filtered_F, Signal_NonTarget3_Filtered_F, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Target4_Filtered_DS64Hz_F, Signal_NonTarget4_Filtered_DS64Hz_F, Duration_points_64Hz] = ...
-    DownSampling(Signal_Target4_Filtered_F, Signal_NonTarget4_Filtered_F, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Target4_Filtered_F, Signal_NonTarget4_Filtered_F, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Target1_Filtered_DS64Hz_R, Signal_NonTarget1_Filtered_DS64Hz_R, Duration_points_64Hz] = ...
-    DownSampling(Signal_Target1_Filtered_R, Signal_NonTarget1_Filtered_R, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Target1_Filtered_R, Signal_NonTarget1_Filtered_R, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Target2_Filtered_DS64Hz_R, Signal_NonTarget2_Filtered_DS64Hz_R, Duration_points_64Hz] = ...
-    DownSampling(Signal_Target2_Filtered_R, Signal_NonTarget2_Filtered_R, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Target2_Filtered_R, Signal_NonTarget2_Filtered_R, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Target3_Filtered_DS64Hz_R, Signal_NonTarget3_Filtered_DS64Hz_R, Duration_points_64Hz] = ...
-    DownSampling(Signal_Target3_Filtered_R, Signal_NonTarget3_Filtered_R, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Target3_Filtered_R, Signal_NonTarget3_Filtered_R, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Target4_Filtered_DS64Hz_R, Signal_NonTarget4_Filtered_DS64Hz_R, Duration_points_64Hz] = ...
-    DownSampling(Signal_Target4_Filtered_R, Signal_NonTarget4_Filtered_R, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Target4_Filtered_R, Signal_NonTarget4_Filtered_R, [1:8], floor(Sampling_Hz * EpochLength));
 
 % --- Epoch Averaging
-%{
-[Signal_Target1_Filtered_DS64Hz_Epoc5_F] = EpochAverage(Signal_Target1_Filtered_DS64Hz_F, Duration_points_64Hz, 5);
-[Signal_Target2_Filtered_DS64Hz_Epoc5_F] = EpochAverage(Signal_Target2_Filtered_DS64Hz_F, Duration_points_64Hz, 5);
-[Signal_Target3_Filtered_DS64Hz_Epoc5_F] = EpochAverage(Signal_Target3_Filtered_DS64Hz_F, Duration_points_64Hz, 5);
-[Signal_Target4_Filtered_DS64Hz_Epoc5_F] = EpochAverage(Signal_Target4_Filtered_DS64Hz_F, Duration_points_64Hz, 5);
-[Signal_NonTarget1_Filtered_DS64Hz_Epoc5_F] = EpochAverage(Signal_NonTarget1_Filtered_DS64Hz_F, Duration_points_64Hz, 5);
-[Signal_NonTarget2_Filtered_DS64Hz_Epoc5_F] = EpochAverage(Signal_NonTarget2_Filtered_DS64Hz_F, Duration_points_64Hz, 5);
-[Signal_NonTarget3_Filtered_DS64Hz_Epoc5_F] = EpochAverage(Signal_NonTarget3_Filtered_DS64Hz_F, Duration_points_64Hz, 5);
-[Signal_NonTarget4_Filtered_DS64Hz_Epoc5_F] = EpochAverage(Signal_NonTarget4_Filtered_DS64Hz_F, Duration_points_64Hz, 5);
-[Signal_Target1_Filtered_DS64Hz_Epoc5_R] = EpochAverage(Signal_Target1_Filtered_DS64Hz_R, Duration_points_64Hz, 5);
-[Signal_Target2_Filtered_DS64Hz_Epoc5_R] = EpochAverage(Signal_Target2_Filtered_DS64Hz_R, Duration_points_64Hz, 5);
-[Signal_Target3_Filtered_DS64Hz_Epoc5_R] = EpochAverage(Signal_Target3_Filtered_DS64Hz_R, Duration_points_64Hz, 5);
-[Signal_Target4_Filtered_DS64Hz_Epoc5_R] = EpochAverage(Signal_Target4_Filtered_DS64Hz_R, Duration_points_64Hz, 5);
-[Signal_NonTarget1_Filtered_DS64Hz_Epoc5_R] = EpochAverage(Signal_NonTarget1_Filtered_DS64Hz_R, Duration_points_64Hz, 5);
-[Signal_NonTarget2_Filtered_DS64Hz_Epoc5_R] = EpochAverage(Signal_NonTarget2_Filtered_DS64Hz_R, Duration_points_64Hz, 5);
-[Signal_NonTarget3_Filtered_DS64Hz_Epoc5_R] = EpochAverage(Signal_NonTarget3_Filtered_DS64Hz_R, Duration_points_64Hz, 5);
-[Signal_NonTarget4_Filtered_DS64Hz_Epoc5_R] = EpochAverage(Signal_NonTarget4_Filtered_DS64Hz_R, Duration_points_64Hz, 5);
-%}
+[Signal_Target1_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Target1_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Train);
+[Signal_Target2_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Target2_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Train);
+[Signal_Target3_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Target3_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Train);
+[Signal_Target4_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Target4_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Train);
+[Signal_NonTarget1_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_NonTarget1_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Train);
+[Signal_NonTarget2_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_NonTarget2_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Train);
+[Signal_NonTarget3_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_NonTarget3_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Train);
+[Signal_NonTarget4_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_NonTarget4_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Train);
+[Signal_Target1_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Target1_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Train);
+[Signal_Target2_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Target2_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Train);
+[Signal_Target3_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Target3_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Train);
+[Signal_Target4_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Target4_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Train);
+[Signal_NonTarget1_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_NonTarget1_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Train);
+[Signal_NonTarget2_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_NonTarget2_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Train);
+[Signal_NonTarget3_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_NonTarget3_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Train);
+[Signal_NonTarget4_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_NonTarget4_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Train);
 
 % --- Feature aggregate
-[Target1_F] = FeatureAggregator(Signal_Target1_Filtered_DS64Hz_F, 64, [1:8], 0.2); %0.2=EPOClength
-[Target2_F] = FeatureAggregator(Signal_Target2_Filtered_DS64Hz_F, 64, [1:8], 0.2); %0.2=EPOClength
-[Target3_F] = FeatureAggregator(Signal_Target3_Filtered_DS64Hz_F, 64, [1:8], 0.2); %0.2=EPOClength
-[Target4_F] = FeatureAggregator(Signal_Target4_Filtered_DS64Hz_F, 64, [1:8], 0.2); %0.2=EPOClength
-[NonTarget1_F] = FeatureAggregator(Signal_NonTarget1_Filtered_DS64Hz_F, 64, [1:8], 0.2); %0.2=EPOClength
-[NonTarget2_F] = FeatureAggregator(Signal_NonTarget2_Filtered_DS64Hz_F, 64, [1:8], 0.2); %0.2=EPOClength
-[NonTarget3_F] = FeatureAggregator(Signal_NonTarget3_Filtered_DS64Hz_F, 64, [1:8], 0.2); %0.2=EPOClength
-[NonTarget4_F] = FeatureAggregator(Signal_NonTarget4_Filtered_DS64Hz_F, 64, [1:8], 0.2); %0.2=EPOClength
-[Target1_R] = FeatureAggregator(Signal_Target1_Filtered_DS64Hz_R, 64, [1:8], 0.2); %0.2=EPOClength
-[Target2_R] = FeatureAggregator(Signal_Target2_Filtered_DS64Hz_R, 64, [1:8], 0.2); %0.2=EPOClength
-[Target3_R] = FeatureAggregator(Signal_Target3_Filtered_DS64Hz_R, 64, [1:8], 0.2); %0.2=EPOClength
-[Target4_R] = FeatureAggregator(Signal_Target4_Filtered_DS64Hz_R, 64, [1:8], 0.2); %0.2=EPOClength
-[NonTarget1_R] = FeatureAggregator(Signal_NonTarget1_Filtered_DS64Hz_R, 64, [1:8], 0.2); %0.2=EPOClength
-[NonTarget2_R] = FeatureAggregator(Signal_NonTarget2_Filtered_DS64Hz_R, 64, [1:8], 0.2); %0.2=EPOClength
-[NonTarget3_R] = FeatureAggregator(Signal_NonTarget3_Filtered_DS64Hz_R, 64, [1:8], 0.2); %0.2=EPOClength
-[NonTarget4_R] = FeatureAggregator(Signal_NonTarget4_Filtered_DS64Hz_R, 64, [1:8], 0.2); %0.2=EPOClength
+[Target1_F] = FeatureAggregator(Signal_Target1_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength);
+[Target2_F] = FeatureAggregator(Signal_Target2_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength); 
+[Target3_F] = FeatureAggregator(Signal_Target3_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength); 
+[Target4_F] = FeatureAggregator(Signal_Target4_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength); 
+[NonTarget1_F] = FeatureAggregator(Signal_NonTarget1_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength); 
+[NonTarget2_F] = FeatureAggregator(Signal_NonTarget2_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength); 
+[NonTarget3_F] = FeatureAggregator(Signal_NonTarget3_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength); 
+[NonTarget4_F] = FeatureAggregator(Signal_NonTarget4_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength); 
+[Target1_R] = FeatureAggregator(Signal_Target1_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength); 
+[Target2_R] = FeatureAggregator(Signal_Target2_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength); 
+[Target3_R] = FeatureAggregator(Signal_Target3_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength); 
+[Target4_R] = FeatureAggregator(Signal_Target4_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength); 
+[NonTarget1_R] = FeatureAggregator(Signal_NonTarget1_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength); 
+[NonTarget2_R] = FeatureAggregator(Signal_NonTarget2_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength); 
+[NonTarget3_R] = FeatureAggregator(Signal_NonTarget3_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength); 
+[NonTarget4_R] = FeatureAggregator(Signal_NonTarget4_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength); 
 
 %(For 2cls)
-[Target1_F_3ch] = FeatureAggregator(Signal_Target1_Filtered_DS64Hz_F, 64, [1 5 6], 0.2); %0.2=EPOClength
-[Target2_F_3ch] = FeatureAggregator(Signal_Target2_Filtered_DS64Hz_F, 64, [1 5 6], 0.2); %0.2=EPOClength
-[Target3_F_3ch] = FeatureAggregator(Signal_Target3_Filtered_DS64Hz_F, 64, [1 5 6], 0.2); %0.2=EPOClength
-[Target4_F_3ch] = FeatureAggregator(Signal_Target4_Filtered_DS64Hz_F, 64, [1 5 6], 0.2); %0.2=EPOClength
-[NonTarget1_F_3ch] = FeatureAggregator(Signal_NonTarget1_Filtered_DS64Hz_F, 64, [1 5 6], 0.2); %0.2=EPOClength
-[NonTarget2_F_3ch] = FeatureAggregator(Signal_NonTarget2_Filtered_DS64Hz_F, 64, [1 5 6], 0.2); %0.2=EPOClength
-[NonTarget3_F_3ch] = FeatureAggregator(Signal_NonTarget3_Filtered_DS64Hz_F, 64, [1 5 6], 0.2); %0.2=EPOClength
-[NonTarget4_F_3ch] = FeatureAggregator(Signal_NonTarget4_Filtered_DS64Hz_F, 64, [1 5 6], 0.2); %0.2=EPOClength
+[Target1_F_3ch] = FeatureAggregator(Signal_Target1_Filtered_DS64Hz_F, 64, [1 5 6], EpochLength); 
+[Target2_F_3ch] = FeatureAggregator(Signal_Target2_Filtered_DS64Hz_F, 64, [1 5 6], EpochLength); 
+[Target3_F_3ch] = FeatureAggregator(Signal_Target3_Filtered_DS64Hz_F, 64, [1 5 6], EpochLength); 
+[Target4_F_3ch] = FeatureAggregator(Signal_Target4_Filtered_DS64Hz_F, 64, [1 5 6], EpochLength); 
+[NonTarget1_F_3ch] = FeatureAggregator(Signal_NonTarget1_Filtered_DS64Hz_F, 64, [1 5 6], EpochLength); 
+[NonTarget2_F_3ch] = FeatureAggregator(Signal_NonTarget2_Filtered_DS64Hz_F, 64, [1 5 6], EpochLength); 
+[NonTarget3_F_3ch] = FeatureAggregator(Signal_NonTarget3_Filtered_DS64Hz_F, 64, [1 5 6], EpochLength); 
+[NonTarget4_F_3ch] = FeatureAggregator(Signal_NonTarget4_Filtered_DS64Hz_F, 64, [1 5 6], EpochLength); 
 TargetA_F = vertcat(Target1_F_3ch, Target2_F_3ch); NonTargetA_F = vertcat(NonTarget1_F_3ch, NonTarget2_F_3ch);
 TargetB_F = vertcat(Target3_F_3ch, Target4_F_3ch); NonTargetB_F = vertcat(NonTarget3_F_3ch, NonTarget4_F_3ch);
 % TargetA_R = vertcat(Target1_R, Target2_R); NonTargetA_R = vertcat(NonTarget1_R, NonTarget2_R);
@@ -146,7 +144,7 @@ save(strcat('../../R/', FileID, '_A_TrainData_R.mat'), 'TrainA_Data_R');
 save(strcat('../../R/', FileID, '_B_TrainData_R.mat'), 'TrainB_Data_R');
 %}
 
-% --- Save parameters gamma and cost
+% --- calculate moderate gamma and cost parameters for SVM
 %{
 [gamma4cls1_F, cost4cls1_F] = SVMlibsvm_cvtestP300(Train1_Data_F, Train1_Label, directory_Training, 'Target1_F');
 [gamma4cls2_F, cost4cls2_F] = SVMlibsvm_cvtestP300(Train2_Data_F, Train2_Label, directory_Training, 'Target2_F');
@@ -170,17 +168,16 @@ Parameter = [
     gamma2clsA_F, cost2clsA_F, NaN, NaN;
     gamma2clsB_F, cost2clsB_F, NaN, NaN;];
 
-save(strcat(directory_Training, '/gamma_cost_Parameter_4cls8ch_2cls3ch_Epoc0.mat'), 'Parameter');
+% --- Save parameters gamma and cost
+save(strcat(directory_Training, '/gamma_cost_Parameter_4cls8ch_2cls3ch.mat'), 'Parameter');
 %}
-%}
+
 % === % === T e s t (Trial) % === % ===
 
 % --- Load parameters gamma and cost
-gamma_cost_Parameter = load(strcat(directory_Training, '/gamma_cost_Parameter_4cls8ch_2cls3ch_Epoc0.mat'));
-%gamma_cost_Parameter_R = load(strcat(directory_Training, '/gamma_cost_Parameter_R.mat'));
-directory_Training
+gamma_cost_Parameter = load(strcat(directory_Training, '/gamma_cost_Parameter_4cls8ch_2cls3ch.mat'));
 gamma_cost_Parameter.Parameter
-%gamma_cost_Parameter.Parameter
+
 gamma4cls1_F = gamma_cost_Parameter.Parameter(1,1); cost4cls1_F = gamma_cost_Parameter.Parameter(1,2); 
 gamma4cls2_F = gamma_cost_Parameter.Parameter(2,1); cost4cls2_F = gamma_cost_Parameter.Parameter(2,2); 
 gamma4cls3_F = gamma_cost_Parameter.Parameter(3,1); cost4cls3_F = gamma_cost_Parameter.Parameter(3,2); 
@@ -213,97 +210,72 @@ gamma2clsB_F = gamma_cost_Parameter.Parameter(6,1); cost2clsB_F = gamma_cost_Par
 
 % --- Downsampling
 [Signal_Trial1_Filtered_DS64Hz_F, Signal_Trial2_Filtered_DS64Hz_F, Duration_points_64Hz] = ...
-    DownSampling(Signal_Trial1_Filtered_F, Signal_Trial2_Filtered_F, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Trial1_Filtered_F, Signal_Trial2_Filtered_F, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Trial3_Filtered_DS64Hz_F, Signal_Trial4_Filtered_DS64Hz_F, Duration_points_64Hz] = ...
-    DownSampling(Signal_Trial3_Filtered_F, Signal_Trial4_Filtered_F, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Trial3_Filtered_F, Signal_Trial4_Filtered_F, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Trial1_Filtered_DS64Hz_R, Signal_Trial2_Filtered_DS64Hz_R, Duration_points_64Hz] = ...
-    DownSampling(Signal_Trial1_Filtered_R, Signal_Trial2_Filtered_R, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Trial1_Filtered_R, Signal_Trial2_Filtered_R, [1:8], floor(Sampling_Hz * EpochLength));
 [Signal_Trial3_Filtered_DS64Hz_R, Signal_Trial4_Filtered_DS64Hz_R, Duration_points_64Hz] = ...
-    DownSampling(Signal_Trial3_Filtered_R, Signal_Trial4_Filtered_R, [1:8], floor(Sampling_Hz * 0.2));
+    DownSampling(Signal_Trial3_Filtered_R, Signal_Trial4_Filtered_R, [1:8], floor(Sampling_Hz * EpochLength));
 
 % --- Epoch Averaging
-Epoch_Trial = 5;
-[Signal_Trial1_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Trial1_Filtered_DS64Hz_F, Duration_points_64Hz, Epoch_Trial);
-[Signal_Trial2_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Trial2_Filtered_DS64Hz_F, Duration_points_64Hz, Epoch_Trial);
-[Signal_Trial3_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Trial3_Filtered_DS64Hz_F, Duration_points_64Hz, Epoch_Trial);
-[Signal_Trial4_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Trial4_Filtered_DS64Hz_F, Duration_points_64Hz, Epoch_Trial);
-[Signal_Trial1_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Trial1_Filtered_DS64Hz_R, Duration_points_64Hz, Epoch_Trial);
-[Signal_Trial2_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Trial2_Filtered_DS64Hz_R, Duration_points_64Hz, Epoch_Trial);
-[Signal_Trial3_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Trial3_Filtered_DS64Hz_R, Duration_points_64Hz, Epoch_Trial);
-[Signal_Trial4_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Trial4_Filtered_DS64Hz_R, Duration_points_64Hz, Epoch_Trial);
+[Signal_Trial1_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Trial1_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Trial);
+[Signal_Trial2_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Trial2_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Trial);
+[Signal_Trial3_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Trial3_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Trial);
+[Signal_Trial4_Filtered_DS64Hz_Epoc_F] = EpochAverage(Signal_Trial4_Filtered_DS64Hz_F, Duration_points_64Hz, EpochCount_Trial);
+[Signal_Trial1_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Trial1_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Trial);
+[Signal_Trial2_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Trial2_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Trial);
+[Signal_Trial3_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Trial3_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Trial);
+[Signal_Trial4_Filtered_DS64Hz_Epoc_R] = EpochAverage(Signal_Trial4_Filtered_DS64Hz_R, Duration_points_64Hz, EpochCount_Trial);
 
 % --- Exploit feature
-[Trial1_Data_F] = FeatureAggregator(Signal_Trial1_Filtered_DS64Hz_Epoc_F, 64, [1:8], 0.2); %EPOClength, Offset, Duration
-[Trial2_Data_F] = FeatureAggregator(Signal_Trial2_Filtered_DS64Hz_Epoc_F, 64, [1:8], 0.2); %EPOClength, Offset, Duration
-[Trial3_Data_F] = FeatureAggregator(Signal_Trial3_Filtered_DS64Hz_Epoc_F, 64, [1:8], 0.2); %EPOClength, Offset, Duration
-[Trial4_Data_F] = FeatureAggregator(Signal_Trial4_Filtered_DS64Hz_Epoc_F, 64, [1:8], 0.2); %EPOClength, Offset, Duration
-[Trial1_Data_R] = FeatureAggregator(Signal_Trial1_Filtered_DS64Hz_Epoc_R, 64, [1:8], 0.2); %EPOClength, Offset, Duration
-[Trial2_Data_R] = FeatureAggregator(Signal_Trial2_Filtered_DS64Hz_Epoc_R, 64, [1:8], 0.2); %EPOClength, Offset, Duration
-[Trial3_Data_R] = FeatureAggregator(Signal_Trial3_Filtered_DS64Hz_Epoc_R, 64, [1:8], 0.2); %EPOClength, Offset, Duration
-[Trial4_Data_R] = FeatureAggregator(Signal_Trial4_Filtered_DS64Hz_Epoc_R, 64, [1:8], 0.2); %EPOClength, Offset, Duration
+[Trial1_Data_F] = FeatureAggregator(Signal_Trial1_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength);
+[Trial2_Data_F] = FeatureAggregator(Signal_Trial2_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength);
+[Trial3_Data_F] = FeatureAggregator(Signal_Trial3_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength);
+[Trial4_Data_F] = FeatureAggregator(Signal_Trial4_Filtered_DS64Hz_Epoc_F, 64, [1:8], EpochLength);
+[Trial1_Data_R] = FeatureAggregator(Signal_Trial1_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength);
+[Trial2_Data_R] = FeatureAggregator(Signal_Trial2_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength);
+[Trial3_Data_R] = FeatureAggregator(Signal_Trial3_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength);
+[Trial4_Data_R] = FeatureAggregator(Signal_Trial4_Filtered_DS64Hz_Epoc_R, 64, [1:8], EpochLength);
 
 %(For 2cls)
-[Trial1_Data_3ch_F] = FeatureAggregator(Signal_Trial1_Filtered_DS64Hz_Epoc_F, 64, [1 5 6], 0.2); %EPOClength, Offset, Duration
-[Trial2_Data_3ch_F] = FeatureAggregator(Signal_Trial2_Filtered_DS64Hz_Epoc_F, 64, [1 5 6], 0.2); %EPOClength, Offset, Duration
-[Trial3_Data_3ch_F] = FeatureAggregator(Signal_Trial3_Filtered_DS64Hz_Epoc_F, 64, [1 5 6], 0.2); %EPOClength, Offset, Duration
-[Trial4_Data_3ch_F] = FeatureAggregator(Signal_Trial4_Filtered_DS64Hz_Epoc_F, 64, [1 5 6], 0.2); %EPOClength, Offset, Duration
+[Trial1_Data_3ch_F] = FeatureAggregator(Signal_Trial1_Filtered_DS64Hz_Epoc_F, 64, [1 5 6], EpochLength);
+[Trial2_Data_3ch_F] = FeatureAggregator(Signal_Trial2_Filtered_DS64Hz_Epoc_F, 64, [1 5 6], EpochLength);
+[Trial3_Data_3ch_F] = FeatureAggregator(Signal_Trial3_Filtered_DS64Hz_Epoc_F, 64, [1 5 6], EpochLength);
+[Trial4_Data_3ch_F] = FeatureAggregator(Signal_Trial4_Filtered_DS64Hz_Epoc_F, 64, [1 5 6], EpochLength);
 
 % --- Trial label
-%if Epoch5 executed to trial datas
-Trial1_Label = [1;0;0;0]; Trial2_Label = [0;1;0;0]; Trial3_Label = [0;0;1;0]; Trial4_Label = [0;0;0;1]; 
-TrialA_Label = [1;1;0;0]; TrialB_Label = [0;0;1;1]; 
-%Otherwise
-%{
-Trial1_Label = vertcat(ones(5, 1), zeros(5, 1), zeros(5, 1), zeros(5, 1));
-Trial2_Label = vertcat(zeros(5, 1), ones(5, 1), zeros(5, 1), zeros(5, 1));
-Trial3_Label = vertcat(zeros(5, 1), zeros(5, 1), ones(5, 1), zeros(5, 1));
-Trial4_Label = vertcat(zeros(5, 1), zeros(5, 1), zeros(5, 1), ones(5, 1));
-TrialA_Label = vertcat(ones(10, 1), zeros(10, 1));
-TrialB_Label = vertcat(zeros(10, 1), ones(10, 1));
-%}
+%if Epoch executed to trial datas
+if (EpochCount_Trial >= 5) 
+    Trial1_Label = [1;0;0;0]; Trial2_Label = [0;1;0;0]; 
+    Trial3_Label = [0;0;1;0]; Trial4_Label = [0;0;0;1]; 
+    TrialA_Label = [1;1;0;0]; TrialB_Label = [0;0;1;1]; 
+elseif (EpochCount_Trial == 1)
+    Trial1_Label = vertcat(ones(5, 1), zeros(5, 1), zeros(5, 1), zeros(5, 1));
+    Trial2_Label = vertcat(zeros(5, 1), ones(5, 1), zeros(5, 1), zeros(5, 1));
+    Trial3_Label = vertcat(zeros(5, 1), zeros(5, 1), ones(5, 1), zeros(5, 1));
+    Trial4_Label = vertcat(zeros(5, 1), zeros(5, 1), zeros(5, 1), ones(5, 1));
+    TrialA_Label = vertcat(ones(10, 1), zeros(10, 1));
+    TrialB_Label = vertcat(zeros(10, 1), ones(10, 1));
+end
 
 % === % === C a l c u l a t i o n % === % ===
-% --- 4cls
-%{
-[p_4cls1] = SVMmatlab_P300(NonTarget1, Target1, Label1);
-[p_4cls2] = SVMmatlab_P300(NonTarget2, Target2, Label2);
-[p_4cls3] = SVMmatlab_P300(NonTarget3, Target3, Label3);
-[p_4cls4] = SVMmatlab_P300(NonTarget4, Target4, Label4);
-%}
 
-[p_target1_F] = SVMlibsvm_P300(Train1_Data_F, Train1_Label, Trial1_Data_F, Trial1_Label, gamma4cls1_F, cost4cls1_F);
-[p_target2_F] = SVMlibsvm_P300(Train2_Data_F, Train2_Label, Trial2_Data_F, Trial2_Label, gamma4cls2_F, cost4cls2_F);
-[p_target3_F] = SVMlibsvm_P300(Train3_Data_F, Train3_Label, Trial3_Data_F, Trial3_Label, gamma4cls3_F, cost4cls3_F);
-[p_target4_F] = SVMlibsvm_P300(Train4_Data_F, Train4_Label, Trial4_Data_F, Trial4_Label, gamma4cls4_F, cost4cls4_F);
-[p_target1_R] = SVMlibsvm_P300(Train1_Data_R, Train1_Label, Trial1_Data_R, Trial1_Label, gamma4cls1_R, cost4cls1_R);
-[p_target2_R] = SVMlibsvm_P300(Train2_Data_R, Train2_Label, Trial2_Data_R, Trial2_Label, gamma4cls2_R, cost4cls2_R);
-[p_target3_R] = SVMlibsvm_P300(Train3_Data_R, Train3_Label, Trial3_Data_R, Trial3_Label, gamma4cls3_R, cost4cls3_R);
-[p_target4_R] = SVMlibsvm_P300(Train4_Data_R, Train4_Label, Trial4_Data_R, Trial4_Label, gamma4cls4_R, cost4cls4_R);
-
-% --- 2cls
-%{
-[z_2cls1, d_2cls1, p_2cls1, b_2cls1] = SVMmatlab_P300(vertcat(NonTarget1, NonTarget2), vertcat(Target1, Target2), Label1);
-[z_2cls2, d_2cls2, p_2cls2, b_2cls2] = SVMmatlab_P300(vertcat(NonTarget1, NonTarget2), vertcat(Target1, Target2), Label2);
-[z_2cls3, d_2cls3, p_2cls3, b_2cls3] = SVMmatlab_P300(vertcat(NonTarget3, NonTarget4), vertcat(Target3, Target4), Label3);
-[z_2cls4, d_2cls4, p_2cls4, b_2cls4] = SVMmatlab_P300(vertcat(NonTarget3, NonTarget4), vertcat(Target3, Target4), Label4);
-%}
-[p_targetA1_F] = SVMlibsvm_P300(TrainA_Data_F, TrainA_Label, Trial1_Data_3ch_F, TrialA_Label, gamma2clsA_F, cost2clsA_F);
-[p_targetA2_F] = SVMlibsvm_P300(TrainA_Data_F, TrainA_Label, Trial2_Data_3ch_F, TrialA_Label, gamma2clsA_F, cost2clsA_F);
-[p_targetB3_F] = SVMlibsvm_P300(TrainB_Data_F, TrainB_Label, Trial3_Data_3ch_F, TrialB_Label, gamma2clsB_F, cost2clsB_F);
-[p_targetB4_F] = SVMlibsvm_P300(TrainB_Data_F, TrainB_Label, Trial4_Data_3ch_F, TrialB_Label, gamma2clsB_F, cost2clsB_F);
-% [p_targetA1_R] = SVMlibsvm_P300(TrainA_Data_R, TrainA_Label, Trial1_Data_R, Trial1_Label, gamma2clsA_R, cost2clsA_R);
-% [p_targetA2_R] = SVMlibsvm_P300(TrainA_Data_R, TrainA_Label, Trial2_Data_R, Trial2_Label, gamma2clsA_R, cost2clsA_R);
-% [p_targetB3_R] = SVMlibsvm_P300(TrainB_Data_R, TrainB_Label, Trial3_Data_R, Trial3_Label, gamma2clsB_R, cost2clsB_R);
-% [p_targetB4_R] = SVMlibsvm_P300(TrainB_Data_R, TrainB_Label, Trial4_Data_R, Trial4_Label, gamma2clsB_R, cost2clsB_R);
+[p_target1_F] = SVMlibsvm_P300(Train1_Data_F, Train1_Label, Trial1_Data_F, Trial1_Label, gamma4cls1_F, cost4cls1_F, EpochCount_Trial);
+[p_target2_F] = SVMlibsvm_P300(Train2_Data_F, Train2_Label, Trial2_Data_F, Trial2_Label, gamma4cls2_F, cost4cls2_F, EpochCount_Trial);
+[p_target3_F] = SVMlibsvm_P300(Train3_Data_F, Train3_Label, Trial3_Data_F, Trial3_Label, gamma4cls3_F, cost4cls3_F, EpochCount_Trial);
+[p_target4_F] = SVMlibsvm_P300(Train4_Data_F, Train4_Label, Trial4_Data_F, Trial4_Label, gamma4cls4_F, cost4cls4_F, EpochCount_Trial);
+[p_target1_R] = SVMlibsvm_P300(Train1_Data_R, Train1_Label, Trial1_Data_R, Trial1_Label, gamma4cls1_R, cost4cls1_R, EpochCount_Trial);
+[p_target2_R] = SVMlibsvm_P300(Train2_Data_R, Train2_Label, Trial2_Data_R, Trial2_Label, gamma4cls2_R, cost4cls2_R, EpochCount_Trial);
+[p_target3_R] = SVMlibsvm_P300(Train3_Data_R, Train3_Label, Trial3_Data_R, Trial3_Label, gamma4cls3_R, cost4cls3_R, EpochCount_Trial);
+[p_target4_R] = SVMlibsvm_P300(Train4_Data_R, Train4_Label, Trial4_Data_R, Trial4_Label, gamma4cls4_R, cost4cls4_R, EpochCount_Trial);
 
 %Class A & B probability
 ProbP300_4cls_F = horzcat(p_target1_F(:,2), p_target2_F(:,2), p_target3_F(:,2), p_target4_F(:,2));
 ProbP300_4cls_R = horzcat(p_target1_R(:,2), p_target2_R(:,2), p_target3_R(:,2), p_target4_R(:,2));
 ProbP300_4cls_AVE = (ProbP300_4cls_F + ProbP300_4cls_R) / 2;
-
-ProbP300_4cls_F
-ProbP300_4cls_R
 ProbP300_4cls_AVE
+
 % === ex.) p_target1
 %____________|_ Prob NonTARGET _|_ Prob TARGET _|
 % Duration 1 | Wrong            | Correct       |
@@ -318,10 +290,17 @@ ProbP300_4cls_AVE
 % Duration 3 | Wrong           | Wrong           | Correct         | Wrong           
 % Duration 4 | Wrong           | Wrong           | Wrong           | Correct        
 
+% --- 2cls
+[p_targetA1_F] = SVMlibsvm_P300(TrainA_Data_F, TrainA_Label, Trial1_Data_3ch_F, TrialA_Label, gamma2clsA_F, cost2clsA_F, EpochCount_Trial);
+[p_targetA2_F] = SVMlibsvm_P300(TrainA_Data_F, TrainA_Label, Trial2_Data_3ch_F, TrialA_Label, gamma2clsA_F, cost2clsA_F, EpochCount_Trial);
+[p_targetB3_F] = SVMlibsvm_P300(TrainB_Data_F, TrainB_Label, Trial3_Data_3ch_F, TrialB_Label, gamma2clsB_F, cost2clsB_F, EpochCount_Trial);
+[p_targetB4_F] = SVMlibsvm_P300(TrainB_Data_F, TrainB_Label, Trial4_Data_3ch_F, TrialB_Label, gamma2clsB_F, cost2clsB_F, EpochCount_Trial);
+
 ProbP300_2cls = horzcat((p_targetA1_F(:,2)+p_targetA2_F(:,2))/2, (p_targetA1_F(:,2)+p_targetA2_F(:,2))/2,...
                         (p_targetB3_F(:,2)+p_targetB4_F(:,2))/2, (p_targetB3_F(:,2)+p_targetB4_F(:,2))/2);
 
 ProbP300_2cls
+
 % === ex.) p_targetA1&A2
 %____________|_ Prob NonTARGET _|_ Prob TARGET _|
 % Duration 1 | Wrong            | Correct       |
@@ -335,38 +314,6 @@ ProbP300_2cls
 % Duration 2 | Correct         | Correct(same)   | Wrong           | Wrong(same)
 % Duration 3 | Wrong           | Wrong(same)     | Correct         | Correct(same)
 % Duration 4 | Wrong           | Wrong(same)     | Correct         | Correct(same)
-
-%{
-figure
-for i = 1:4
-    ProbAll = vertcat(ProbP300_4cls_F(i,:), ProbP300_4cls_R(i,:), ...
-                      ProbP300_4cls_AVE(i,:), ProbP300_2cls(i,:));
-    
-    graph(i) = subplot(2,2,i);
-    DepictMatrix(ProbAll, {'Target1','Target2','Target3','Target4'}, ...
-        {'P300Prob-4cls_F', 'P300Prob-4cls_R','P300Prob-4cls_AVE','P300Prob-2cls'})
-end
-
-title(graph(1), 'Discriminant Score Duration 1')
-title(graph(2), 'Discriminant Score Duration 2')
-title(graph(3), 'Discriminant Score Duration 3')
-title(graph(4), 'Discriminant Score Duration 4')
-
-filename_Prob = strcat(directory_Trial, '/_ResultP300Prob(SVM)_clsw_4cls8ch_2cls3ch.png');
-set(gcf,'Position', [0 0 640 480], 'PaperPositionMode', 'auto')
-print(filename_Prob,'-dpng','-r0')
-
-%{
-save(strcat('../../R/', FileID, '_1_TrialData_F.mat'), 'Trial1_Data_F');
-save(strcat('../../R/', FileID, '_2_TrialData_F.mat'), 'Trial2_Data_F');
-save(strcat('../../R/', FileID, '_3_TrialData_F.mat'), 'Trial3_Data_F');
-save(strcat('../../R/', FileID, '_4_TrialData_F.mat'), 'Trial4_Data_F');
-save(strcat('../../R/', FileID, '_1_TrialData_R.mat'), 'Trial1_Data_R');
-save(strcat('../../R/', FileID, '_2_TrialData_R.mat'), 'Trial2_Data_R');
-save(strcat('../../R/', FileID, '_3_TrialData_R.mat'), 'Trial3_Data_R');
-save(strcat('../../R/', FileID, '_4_TrialData_R.mat'), 'Trial4_Data_R');
-%}
-%}
 
 end
 

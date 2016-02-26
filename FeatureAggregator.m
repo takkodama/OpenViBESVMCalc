@@ -3,8 +3,7 @@ function [FeatureArray] = FeatureAggregator(SignalArray, Sampling_Hz, Channels, 
 SigLen = length(SignalArray(:, 1));
 ChNum = length(Channels);
 if(Sampling_Hz == 256), Duration_point = floor(durationSec * Sampling_Hz);
-elseif(Sampling_Hz == 64), Duration_point = ceil(durationSec * Sampling_Hz);
-end 
+elseif(Sampling_Hz == 64), Duration_point = ceil(durationSec * Sampling_Hz); end 
 StimulationTimes = SigLen / Duration_point; %10
 Dimentions = Duration_point;
 
